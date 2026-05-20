@@ -4,9 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BK Center - Motivasi Belajar</title>
+    
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -16,13 +18,15 @@
                     colors: {
                         primary: '#1a237e',
                         'primary-light': '#3949ab',
+                        dominant: '#111827',
                         secondary: '#fbc02d',
                         wa: '#25D366',
                         bg: '#f5f7fa',
                     },
                     fontFamily: {
                         poppins: ['Poppins', 'sans-serif'],
-                    },
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
                 }
             }
         }
@@ -30,342 +34,1152 @@
     <style>
         html { scroll-behavior: smooth; }
         .bg-hero {
-            background-image: linear-gradient(rgba(26,35,126,0.85), rgba(26,35,126,0.85)), url('https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1350');
+            background-image: linear-gradient(rgba(26, 35, 126, 0.9), rgba(26, 35, 126, 0.85)), url('https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1350');
             background-size: cover;
             background-position: center;
+        }
+        /* Penyeimbang Scrollbar di Chat area */
+        #chat-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-area::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        #chat-area::-webkit-scrollbar-thumb {
+            background: rgba(26, 35, 126, 0.2);
+            border-radius: 10px;
         }
     </style>
 </head>
 <body class="font-poppins bg-bg text-gray-800">
 
+    <!-- Floating Toast Notifications -->
+    <div id="toast-container" class="fixed top-6 right-6 left-6 md:left-auto md:w-96 z-50 pointer-events-none flex flex-col gap-3"></div>
+
     <!-- Navbar -->
-    <nav class="bg-primary text-white py-4 px-6 md:px-[5%] sticky top-0 z-50 shadow-lg flex justify-between items-center bg-gradient-to-r from-primary to-primary-light">
-        <div class="flex items-center gap-2 text-xl md:text-2xl font-bold text-secondary">
+    <nav class="bg-primary text-white py-4 px-6 md:px-[5%] sticky top-0 z-40 shadow-lg flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-primary to-primary-light border-b border-indigo-900/40">
+        <div class="flex items-center gap-2.5 text-xl md:text-2xl font-bold text-secondary">
             <i class="fas fa-graduation-cap"></i>
             <span>BK CENTER</span>
         </div>
-        <ul class="hidden md:flex items-center gap-2 list-none">
-            <li><a href="#home" class="px-4 py-2 rounded-full text-sm font-medium hover:bg-secondary hover:text-primary transition-all">Home</a></li>
-            <li><a href="#motivasi" class="px-4 py-2 rounded-full text-sm font-medium hover:bg-secondary hover:text-primary transition-all">Motivasi</a></li>
-            <li><a href="#mood" class="px-4 py-2 rounded-full text-sm font-medium hover:bg-secondary hover:text-primary transition-all">Mood</a></li>
-            <li><a href="#konsultasi" class="px-4 py-2 rounded-full text-sm font-medium hover:bg-secondary hover:text-primary transition-all">Konsultasi</a></li>
-            <li><a href="#tes" class="px-4 py-2 rounded-full text-sm font-medium hover:bg-secondary hover:text-primary transition-all">Tes</a></li>
-            <li><a href="#reward" class="px-4 py-2 rounded-full text-sm font-medium hover:bg-secondary hover:text-primary transition-all">Achievement</a></li>
+        
+        <ul class="flex flex-wrap justify-center items-center gap-1 md:gap-2 list-none m-0 p-0 text-xs md:text-sm font-medium">
+            <li><a href="#home" class="px-3.5 py-2 rounded-full hover:bg-white/15 transition-all text-indigo-100 hover:text-white">Home</a></li>
+            <li><a href="#motivasi" class="px-3.5 py-2 rounded-full hover:bg-white/15 transition-all text-indigo-100 hover:text-white">Motivasi</a></li>
+            <li><a href="#mood" class="px-3.5 py-2 rounded-full hover:bg-white/15 transition-all text-indigo-100 hover:text-white">Mood</a></li>
+            <li><a href="#konsultasi" class="px-3.5 py-2 rounded-full hover:bg-white/15 transition-all text-indigo-100 hover:text-white">Konseling</a></li>
+            <li><a href="#tes" class="px-3.5 py-2 rounded-full hover:bg-white/15 transition-all text-indigo-100 hover:text-white">Tes Motivasi</a></li>
+            <li><a href="#schedule-ach" class="px-3.5 py-2 rounded-full hover:bg-white/15 transition-all text-indigo-100 hover:text-white">Achievement</a></li>
         </ul>
+
+        {/* Poin Banner */}
+        <div class="flex items-center gap-2 bg-indigo-950/60 px-4 py-1.5 rounded-full border border-indigo-700/50">
+            <span class="text-[10px] tracking-wider text-indigo-200 uppercase font-bold">XP Kamu</span>
+            <span id="nav-points" class="text-sm font-black text-secondary font-mono">1,250</span>
+        </div>
     </nav>
 
     <!-- Hero Section -->
-    <header id="home" class="relative min-h-[450px] flex flex-col justify-center items-center text-center text-white px-6 bg-hero">
-        <h1 class="text-4xl md:text-6xl font-bold mb-4">Semangat Belajar Itu Utama!</h1>
-        <p class="text-lg md:text-xl opacity-90 mb-8 max-w-2xl">Guru BK siap membimbing kamu menuju kesuksesan melalui motivasi dan bimbingan yang tepat.</p>
-        <a href="#mood" class="bg-secondary text-primary px-8 py-3 rounded-full font-bold text-lg hover:brightness-105 transition-all shadow-lg transform hover:scale-105">
-            Cek Mood Kamu
-        </a>
-    </header>
-
-    <main class="max-w-6xl mx-auto px-6 py-12">
+    <header id="home" class="relative min-h-[460px] flex flex-col justify-center items-center text-center text-white px-6 py-12 bg-hero overflow-hidden">
+        <div class="absolute inset-0 bg-indigo-950/40 mix-blend-multiply pointer-events-none"></div>
         
-        <!-- 1. MOTIVASI HARIAN -->
-        <section id="motivasi" class="mb-20">
-            <h2 class="text-primary font-bold text-3xl mb-8 flex items-center gap-3">
-                <i class="fas fa-lightbulb"></i> Motivasi Harian
-            </h2>
-            <div class="bg-white p-8 rounded-3xl border-l-[6px] border-secondary shadow-lg text-center mb-10">
-                <p id="quote-text" class="text-2xl italic font-medium leading-relaxed mb-4 text-gray-700">
-                    "Bermimpi saja tidak cukup. Bertindaklah untuk mewujudkannya!"
-                </p>
-                <span id="quote-author" class="text-gray-500 block mb-6">- BK Sender</span>
-                <button onclick="gantiQuote()" class="bg-primary text-white px-6 py-2 rounded-full font-medium hover:bg-primary-light transition-colors flex items-center gap-2 mx-auto">
-                    <i class="fas fa-sync-alt"></i> Quote Baru
-                </button>
+        <div class="relative z-10 max-w-3xl mx-auto flex flex-col items-center">
+            <div class="inline-flex items-center gap-2 bg-yellow-400/20 text-yellow-300 border border-yellow-400/30 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-6">
+                <i class="fas fa-sparkles text-yellow-400 animate-pulse"></i>
+                Portal Support Mental & Belajar
+            </div>
+            
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+                Semangat Belajar <span class="text-secondary">Itu Utama!</span>
+            </h1>
+            <p class="text-base md:text-lg opacity-90 mb-8 max-w-2xl leading-relaxed">
+                Guru BK hadir sebagai sahabat bimbingan yang ramah, siap mendengarkan cerita, membantu memetakan jadwal, dan memupuk daya juang belajarmu demi meraih cita-cita mulia!
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-3 w-full justify-center">
+                <a href="#mood" class="bg-secondary text-primary px-8 py-3.5 rounded-full font-bold text-base hover:brightness-105 transition-all shadow-lg transform hover:scale-105 flex items-center justify-center gap-2">
+                    <i class="fas fa-smile"></i> Cek Mood Kamu
+                </a>
+                <a href="#konsultasi" class="bg-transparent hover:bg-white/10 text-white border border-white/30 px-8 py-3.5 rounded-full font-semibold text-base transition-all flex items-center justify-center gap-2">
+                    Mulai Curhat AI <i class="fas fa-chevron-right text-xs"></i>
+                </a>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold mb-3 flex items-center gap-2">
-                        <i class="fas fa-play-circle text-primary"></i> Video Motivasi
-                    </h3>
-                    <p class="text-gray-600 mb-4">Tonton cerita inspiratif untuk membangkitkan semangat belajarmu hari ini.</p>
-                    <a href="https://www.youtube.com/watch?v=9gspRjQZyGU" target="_blank" class="text-primary font-semibold flex items-center gap-1 hover:underline">
-                        Tonton Video <i class="fas fa-external-link-alt text-xs"></i>
-                    </a>
+            <!-- Progres Level Card -->
+            <div class="mt-10 bg-indigo-950/80 backdrop-blur-md border border-indigo-700/40 rounded-2xl p-4 w-full max-w-md shadow-2xl">
+                <div class="flex justify-between items-center text-xs font-bold text-indigo-200 mb-1">
+                    <span id="level-title">Level Bimbingan 3</span>
+                    <span id="points-ratio" class="text-secondary font-mono">1250 XP</span>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-                    <h3 class="text-xl font-bold mb-3 flex items-center gap-2">
-                        <i class="fas fa-envelope text-primary"></i> Pesan Guru BK
-                    </h3>
-                    <p class="text-gray-600 italic">"Tetap semangat! Setiap kesulitan adalah peluang untuk tumbuh. Kamu lebih kuat dari yang kamu bayangkan."</p>
-                    <footer class="text-xs text-gray-400 mt-4">- Tim Guru BK</footer>
+                <div class="w-full h-2.5 bg-indigo-900 rounded-full overflow-hidden">
+                    <div id="level-bar-fill" class="bg-secondary h-full rounded-full transition-all duration-500" style="width: 50%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 md:px-8 py-12 flex flex-col gap-16">
+        
+        <!-- 1. MOTIVASI HARIAN -->
+        <section id="motivasi" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shadow-md">
+                    <i class="fas fa-lightbulb text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight text-primary">Motivasi Harian</h2>
+                    <p class="text-xs text-gray-500">Inspirasi kata bijak penumbuh semangat belajar siswa setiap hari</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-10">
+                <!-- Quote Box -->
+                <div class="lg:col-span-7 bg-white p-6 md:p-8 rounded-3xl border-l-[6px] border-secondary shadow-lg relative min-h-[220px] flex flex-col justify-between">
+                    <div class="absolute top-2 right-6 text-gray-100 font-extrabold text-8xl font-serif select-none pointer-events-none">“</div>
+                    <div id="quote-wrapper" class="transition-opacity duration-200">
+                        <p id="quote-text" class="text-xl md:text-2xl italic font-semibold leading-relaxed text-slate-700">
+                            "Bermimpi saja tidak cukup. Bertindaklah untuk mewujudkannya!"
+                        </p>
+                        <span id="quote-author" class="text-slate-400 font-semibold text-xs mt-3 block">— BK Sender</span>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="gantiQuote()" class="bg-primary text-white text-xs md:text-sm px-5 py-2.5 rounded-full font-bold hover:bg-primary-light transition-all flex items-center gap-2 shadow shadow-primary-light/20">
+                            <i class="fas fa-sync-alt"></i> Quote Baru
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pesan Tim BK -->
+                <div class="lg:col-span-5 bg-gradient-to-br from-primary to-indigo-950 p-6 rounded-3xl text-white shadow-lg min-h-[220px] flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
+                    <div>
+                        <span class="text-[10px] bg-primary-light text-indigo-200 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">Pesan Pembimbing</span>
+                        <p class="text-sm md:text-base italic leading-relaxed text-indigo-100 mt-3 font-medium">
+                            "Setiap kesulitan dalam memahami pelajaran hari ini bukanlah kegagalan, melainkan proses bernilai tinggi bagi pembentukan kedewasaan berpikirmu."
+                        </p>
+                    </div>
+                    <footer class="text-xs text-secondary font-bold mt-4 block">— Tim Konselor BK Center ★</footer>
+                </div>
+            </div>
+
+            <!-- Video Motivasi Terintegrasi -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-md">
+                <h3 class="text-lg font-bold text-primary mb-3 flex items-center gap-2">
+                    <i class="fas fa-video text-primary"></i> Rekomendasi Video Motivasi Belajar Guru BK
+                </h3>
+                <p class="text-sm text-gray-500 mb-6">Tonton video bimbingan di bawah ini untuk membantumu memompa kembali daya juang belajar yang mulai surut.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+                    <div class="lg:col-span-3 rounded-2xl overflow-hidden aspect-video bg-indigo-950 w-full shadow-lg border">
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/HpgOO46OZ-Q" title="Video Motivasi" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <div class="lg:col-span-2 flex flex-col gap-4">
+                        <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                            <h4 class="font-bold text-sm text-primary mb-1">Membangkitkan Motivasi Belajar</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed">Video kurasi bimbingan konseling ini menceritakan pentingnya memegang komitmen terhadap impian di kala rasa malas melanda. Tekad melahirkan peluang!</p>
+                        </div>
+                        <div class="flex gap-2 text-xs">
+                            <a href="https://youtu.be/HpgOO46OZ-Q" target="_blank" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 px-4 rounded-xl transition text-center flex items-center justify-center gap-1.5 border border-red-200">
+                                <i class="fab fa-youtube"></i> Buka YouTube
+                            </a>
+                            <button onclick="klaimVideoPoint()" id="btn-klaim-video" class="flex-1 bg-primary text-white font-bold py-3 px-4 rounded-xl hover:bg-primary-light transition flex items-center justify-center gap-1.5 shadow">
+                                <i class="fas fa-check-circle"></i> Selesai Nonton
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- 2. MOOD TRACKER -->
-        <section id="mood" class="mb-20 scroll-mt-24">
-            <h2 class="text-primary font-bold text-3xl mb-8 flex items-center gap-3">
-                <i class="fas fa-smile"></i> Mood Tracker
-            </h2>
-            <div class="bg-white p-10 rounded-3xl shadow-sm text-center">
-                <p class="text-lg mb-8">Bagaimana perasaanmu saat ini?</p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <button onclick="pilihMood('senang', 'Senang mendengarnya! Pertahankan energi positifmu! 😊')" class="mood-btn flex flex-col items-center p-6 rounded-2xl border-4 border-gray-100 bg-white hover:border-primary hover:bg-primary/5 transition-all w-32">
-                        <span class="text-4xl mb-2">😊</span>
-                        <span class="text-sm font-medium">Senang</span>
+        <section id="mood" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-primary flex items-center justify-center shadow-md">
+                    <i class="fas fa-smile text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight text-primary">Mood Tracker</h2>
+                    <p class="text-xs text-gray-500">Bagaimana perasaan serta kesiapan mental belajarmu hari ini?</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-lg border border-slate-100">
+                <p class="text-slate-600 text-sm md:text-base text-center max-w-lg mx-auto mb-8">
+                    Ketuk salah satu tombol ekspresi di bawah untuk membagikan energimu. Setiap update harian akan membuahkan akumulasi poin semangat!
+                </p>
+                
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                    <button onclick="pilihMood('senang')" id="mood-senang" class="mood-btn flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 shadow-sm">
+                        <span class="text-5xl mb-2 block transform hover:scale-110 transition">😊</span>
+                        <span class="text-sm font-bold text-gray-800">Senang</span>
                     </button>
-                    <button onclick="pilihMood('netral', 'Kadang hari biasa itu perlu. Tetap semangat, ya! 😐')" class="mood-btn flex flex-col items-center p-6 rounded-2xl border-4 border-gray-100 bg-white hover:border-primary hover:bg-primary/5 transition-all w-32">
-                        <span class="text-4xl mb-2">😐</span>
-                        <span class="text-sm font-medium">Netral</span>
+                    <button onclick="pilihMood('netral')" id="mood-netral" class="mood-btn flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 shadow-sm">
+                        <span class="text-5xl mb-2 block transform hover:scale-110 transition">😐</span>
+                        <span class="text-sm font-bold text-gray-800">Netral</span>
                     </button>
-                    <button onclick="pilihMood('capek', 'Istirahat sejenak, yuk. Kamu sudah melakukan yang terbaik. 😔')" class="mood-btn flex flex-col items-center p-6 rounded-2xl border-4 border-gray-100 bg-white hover:border-primary hover:bg-primary/5 transition-all w-32">
-                        <span class="text-4xl mb-2">😔</span>
-                        <span class="text-sm font-medium">Capek</span>
+                    <button onclick="pilihMood('capek')" id="mood-capek" class="mood-btn flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 shadow-sm">
+                        <span class="text-5xl mb-2 block transform hover:scale-110 transition">😔</span>
+                        <span class="text-sm font-bold text-gray-800">Capek</span>
                     </button>
-                    <button onclick="pilihMood('stres', 'Tenangkan pikiranmu. Guru BK siap mendengarkan ceritamu. 😫')" class="mood-btn flex flex-col items-center p-6 rounded-2xl border-4 border-gray-100 bg-white hover:border-primary hover:bg-primary/5 transition-all w-32">
-                        <span class="text-4xl mb-2">😫</span>
-                        <span class="text-sm font-medium">Stres</span>
+                    <button onclick="pilihMood('stres')" id="mood-stres" class="mood-btn flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 shadow-sm">
+                        <span class="text-5xl mb-2 block transform hover:scale-110 transition">😫</span>
+                        <span class="text-sm font-bold text-gray-800">Stres</span>
                     </button>
                 </div>
-                <div id="mood-result" class="mt-8 text-primary font-bold text-xl min-h-[30px]"></div>
+
+                <!-- Advice Box -->
+                <div id="mood-advice-box" class="hidden mt-8 max-w-3xl mx-auto p-5 md:p-6 rounded-2xl border-l-[5px] shadow-sm flex flex-col md:flex-row gap-4 items-center md:items-start transition-all duration-300">
+                    <div class="text-4xl">💡</div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h4 id="advice-title" class="font-bold text-slate-900 text-sm md:text-base capitalize mb-1">Rekomendasi</h4>
+                        <p id="advice-desc" class="text-xs md:text-sm text-slate-600 leading-relaxed font-semibold"></p>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- 3. KONSULTASI ONLINE -->
-        <section id="konsultasi" class="mb-20 scroll-mt-24">
-            <h2 class="text-primary font-bold text-3xl mb-8 flex items-center gap-3">
-                <i class="fas fa-comment-dots"></i> Konsultasi Online
-            </h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Chat Interface -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col h-[500px]">
-                    <h3 class="text-xl font-bold mb-4">Chat Langsung</h3>
-                    <div id="chat-area" class="flex-1 overflow-y-auto bg-gray-50 rounded-xl p-4 mb-4 space-y-4">
-                        <div class="max-w-[80%] p-3 rounded-2xl bg-white text-gray-800 mr-auto rounded-tl-none border border-gray-100 shadow-sm">
-                            Halo! Saya AI Guru BK. Ada yang bisa saya bantu diskusikan hari ini?
+        <!-- 3. KONSULTASI ONLINE (CHAT AI & WHATSAPP) -->
+        <section id="konsultasi" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-primary flex items-center justify-center shadow-md">
+                    <i class="fas fa-comment-dots text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight text-primary">Konsultasi Bimbingan</h2>
+                    <p class="text-xs text-gray-500">Kirim keluh kesahmu lewat asisten chat interaktif atau jadwalkan bersama konselor sekolah</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Chat AI Card -->
+                <div class="lg:col-span-7 bg-white p-5 rounded-3xl shadow-lg border border-slate-100 flex flex-col min-h-[500px]">
+                    <div class="flex items-center justify-between border-b pb-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span class="font-bold text-slate-800 text-xs md:text-sm">Diskusi Interaktif bersama AI Guru BK</span>
+                        </div>
+                        <button onclick="clearChatHistory()" class="text-slate-400 hover:text-red-500 text-xs flex items-center gap-1 transition">
+                            <i class="fas fa-trash-alt text-[10px]"></i> Bersihkan Riwayat Chat
+                        </button>
+                    </div>
+
+                    <!-- Chat Bubbles Area -->
+                    <div id="chat-area" class="flex-1 overflow-y-auto max-h-[350px] min-h-[300px] bg-slate-50/80 rounded-2xl p-4 mb-4 space-y-4 border border-slate-100/40">
+                        <!-- Bot Greeting bubble -->
+                        <div class="flex flex-col max-w-[85%] mr-auto">
+                            <div class="p-3.5 rounded-2xl text-xs md:text-sm shadow-sm leading-relaxed bg-white text-slate-800 rounded-tl-none border border-slate-100">
+                                Halo! Saya AI Guru BK Center. Selamat datang di ruang diskusi yang aman dan rahasia ini. Ada masalah belajar, manajemen waktu, kecemasan ujian, atau hal seru lainnya yang ingin kamu bagikan hari ini?
+                            </div>
+                            <span class="text-[9px] text-slate-400 mt-1 block px-1 text-left">Asisten BK</span>
                         </div>
                     </div>
+
+                    <!-- Input Box -->
                     <div class="flex gap-2">
-                        <input id="chat-input" type="text" placeholder="Tulis pesan..." class="flex-1 px-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/20" />
-                        <button onclick="kirimChat()" class="p-3 bg-primary text-white rounded-full hover:bg-primary-light transition-colors">
-                            <i class="fas fa-paper-plane"></i>
+                        <input id="chat-input" type="text" placeholder="Tulis keluh kesah atau pertanyaamu di sini..." class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-full text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition" />
+                        <button onclick="kirimChat()" class="p-3 bg-primary text-white rounded-full hover:bg-primary-light transition shadow hover:shadow-primary/20">
+                            <i class="fas fa-paper-plane text-sm"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- WhatsApp Form -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm">
-                    <h3 class="text-xl font-bold mb-4">Hubungi via WhatsApp</h3>
-                    <form onsubmit="kirimWA(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama (Opsional)</label>
-                            <input id="wa-nama" type="text" placeholder="Namamu" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-wa/20" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Topik</label>
-                            <select id="wa-topik" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-wa/20">
-                                <option>Kesulitan Belajar</option>
-                                <option>Masalah Teman</option>
-                                <option>Masalah Keluarga</option>
-                                <option>Bullying</option>
-                                <option>Lainnya</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Pesan</label>
-                            <textarea id="wa-pesan" rows="4" placeholder="Tulis curhatanmu..." class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-wa/20" required></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-wa text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:brightness-105 transition-all">
-                            <i class="fab fa-whatsapp text-xl"></i> Kirim ke WhatsApp
-                        </button>
-                    </form>
+                <!-- WhatsApp form -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-3xl shadow-lg border border-slate-100 flex flex-col justify-between min-h-[500px]">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg mb-2 flex items-center gap-2">
+                            <span class="bg-wa text-white text-[10px] uppercase px-2 py-0.5 rounded font-black font-mono">WA</span>
+                            Bimbingan via WhatsApp
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-5 leading-relaxed">
+                            Butuh solusi mendalam terkait masalah keluarga, kesulitan pertemanan, atau bullying? Isi formulir singkat ini untuk langsung terhubung dengan Guru BK di WhatsApp.
+                        </p>
+
+                        <form onsubmit="kirimWA(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap (Opsional)</label>
+                                <input id="wa-name" type="text" placeholder="Tulis namamu atau kosongkan" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-wa/20 focus:border-wa transition" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Topik Utama</label>
+                                <select id="wa-topic" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-wa/20 focus:border-wa transition">
+                                    <option value="Kesulitan Memahami Pelajaran">Kesulitan Memahami Pelajaran</option>
+                                    <option value="Manajemen Waktu Belajar">Manajemen Waktu & Sering Menunda</option>
+                                    <option value="Hubungan Pertemanan & Sosial">Masalah Sosial & Hubungan Teman</option>
+                                    <option value="Perundungan / Bullying">Perundungan / Masalah Bullying</option>
+                                    <option value="Kecemasan Ujian">Kecemasan & Gugup Ujian</option>
+                                    <option value="Curhat Umum">Curhat Rahasia Lainnya</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Tulis Keluh Kesahmu</label>
+                                <textarea id="wa-message" rows="3" required placeholder="Tuliskan ceritamu secara singkat..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-wa/20 focus:border-wa transition placeholder:text-gray-300"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-wa text-white font-bold py-3.5 px-4 rounded-xl hover:brightness-105 transition shadow-lg shadow-wa/10 flex items-center justify-center gap-2 text-xs md:text-sm cursor-pointer">
+                                <i class="fab fa-whatsapp text-lg"></i> Kirim Curhat ke WhatsApp BK
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="mt-4 p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-2xl flex gap-2.5 items-start">
+                        <i class="fas fa-lock text-primary mt-0.5 text-sm shrink-0"></i>
+                        <p class="text-[10px] text-slate-500 leading-relaxed">
+                            <strong>Privasi Terjaga Mandiri:</strong> Sesuai kode etik konseling bimbingan sekolah, obrolanmu bersifat konseptual rahasia. Katakan apa yang kamu butuhkan dengan leluasa!
+                        </p>
+                    </div>
                 </div>
+
             </div>
         </section>
 
-        <!-- 4. TES MOTIVASI -->
-        <section id="tes" class="mb-20 scroll-mt-24">
-            <h2 class="text-primary font-bold text-3xl mb-8 flex items-center gap-3">
-                <i class="fas fa-clipboard-check"></i> Tes Motivasi Belajar
-            </h2>
-            <div class="bg-white p-8 rounded-3xl shadow-sm">
-                <div id="quiz-options" class="space-y-3">
-                    <p class="mb-4 text-gray-600 font-medium">Pilih pernyataan yang paling menggambarkan dirimu:</p>
-                    <button onclick="hasilQuiz(100, 'Super Semangat!', 'Pertahankan semangatmu! Kamu adalah inspirasi bagi teman-temanmu.')" class="w-full text-left p-4 bg-gray-50 rounded-xl hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20">
-                        1. Saya belajar setiap hari, tanpa menunggu ujian
-                    </button>
-                    <button onclick="hasilQuiz(70, 'Semangat Cukup', 'Bagus! Coba buat jadwal yang lebih terencana agar lebih konsisten.')" class="w-full text-left p-4 bg-gray-50 rounded-xl hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20">
-                        2. Saya hanya belajar saat ada PR/tugas
-                    </button>
-                    <button onclick="hasilQuiz(40, 'Butuh Dorongan', 'Jangan menyerah. Yuk, temukan hobi belajarmu perlahan-lahan.')" class="w-full text-left p-4 bg-gray-50 rounded-xl hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20">
-                        3. Saya sering menunda belajar
-                    </button>
-                    <button onclick="hasilQuiz(20, 'Butuh Bimbingan', 'Jangan berkecil hati. Mari ngobrol dengan Guru BK untuk cari solusinya.')" class="w-full text-left p-4 bg-gray-50 rounded-xl hover:bg-primary/10 transition-colors border border-transparent hover:border-primary/20">
-                        4. Belajar? Besok saja deh...
+        <!-- 4. TES MOTIVASI BELAJAR -->
+        <section id="tes" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-primary flex items-center justify-center shadow-md">
+                    <i class="fas fa-clipboard-check text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight text-primary">Tes Motivasi Belajar</h2>
+                    <p class="text-xs text-gray-500">Evaluasi kadar kemauan belajarmu secara langsung bersama tim BK</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-3xl shadow-lg border border-slate-100">
+                
+                <!-- START SCREEN -->
+                <div id="quiz-start-screen" class="text-center max-w-lg mx-auto py-6">
+                    <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-250 font-bold shadow-sm">
+                        <i class="fas fa-clipboard-list text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-primary mb-2">Berapa Indeks Motivasi Belajarmu?</h3>
+                    <p class="text-xs md:text-sm text-gray-500 leading-relaxed mb-6">
+                        Kuis interaktif ini terdiri atas 4 skenario untuk mengukur profile belajarmu, cara menyiasati ujian, serta pembagian waktu harian. Di akhir kuis, Guru BK memberikan hasil analisis tertulis dan saran pemulihan.
+                    </p>
+                    <button onclick="mulaiKuis()" class="bg-primary text-white font-bold px-8 py-3.5 rounded-full text-xs md:text-sm hover:bg-primary-light hover:scale-105 transition shadow shadow-primary-light/10">
+                        Mulai Tes Motivasi Sekarang
                     </button>
                 </div>
-                <div id="quiz-result" class="hidden text-center bg-green-50 p-10 rounded-2xl border border-green-100 transform transition-all">
-                    <i class="fas fa-trophy text-6xl text-yellow-500 mb-4 opacity-100"></i>
-                    <h3 id="result-title" class="text-2xl font-bold text-green-800 mb-2"></h3>
-                    <p id="result-score" class="text-green-700 mb-4"></p>
-                    <p id="result-desc" class="text-gray-600 italic"></p>
-                    <button onclick="resetQuiz()" class="mt-6 text-primary font-semibold hover:underline">Tes Ulang</button>
+
+                <!-- ACTIVE QUIZ CONTAINER -->
+                <div id="quiz-active-container" class="hidden">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center text-xs font-semibold text-primary mb-2">
+                            <span id="quiz-progress-text">Pertanyaan 1 dari 4</span>
+                            <span id="quiz-progress-percentage">25%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-105 rounded-full overflow-hidden">
+                            <div id="quiz-progress-bar" class="bg-primary h-full rounded-full transition-all duration-300" style="width: 25%"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 id="quiz-question" class="text-lg font-bold text-primary leading-relaxed">
+                            Mengapa Anda Belajar?
+                        </h3>
+                    </div>
+
+                    <div id="quiz-options-container" class="space-y-3.5 mb-8">
+                        <!-- Dynamic Options inserted here -->
+                    </div>
+
+                    <div class="flex justify-end pt-3 border-t">
+                        <button onclick="lanjutKuis()" id="btn-lanjut-kuis" class="bg-primary text-white font-bold px-6 py-3 rounded-full text-xs md:text-sm flex items-center gap-1.5 transition">
+                            Pertanyaan Selanjutnya <i class="fas fa-chevron-right text-xs"></i>
+                        </button>
+                    </div>
                 </div>
+
+                <!-- QUIZ RESULT SCREEN -->
+                <div id="quiz-result-screen" class="hidden text-center bg-indigo-50/40 p-6 md:p-8 rounded-3xl border border-indigo-150 max-w-xl mx-auto">
+                    <div class="w-20 h-20 bg-yellow-400 text-indigo-950 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+                        <i class="fas fa-trophy text-3xl"></i>
+                    </div>
+                    
+                    <h3 id="quiz-result-title" class="text-2xl font-black text-primary mb-1">Super Semangat! 🏆</h3>
+                    <div class="inline-block bg-primary text-secondary font-mono text-xs font-bold px-3.5 py-1 rounded-full mb-4">
+                        Skor Indeks Motivasi: <span id="quiz-result-score">100%</span>
+                    </div>
+
+                    <!-- Detailed Advice -->
+                    <div class="bg-white p-5 rounded-2xl shadow-sm text-left border mb-6 text-xs md:text-sm text-slate-605 leading-relaxed space-y-3">
+                        <p class="font-bold text-primary font-mono uppercase tracking-wider text-center text-xs mb-1">Rekomendasi Strategis Guru BK:</p>
+                        <p id="quiz-result-analysis-text"></p>
+                    </div>
+
+                    <div class="flex gap-2 justify-center">
+                        <button onclick="resetKuis()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-5 py-3 rounded-xl transition">
+                            <i class="fas fa-redo"></i> Tes Ulang
+                        </button>
+                        <a href="#konsultasi" class="text-xs bg-primary hover:bg-primary-light text-white font-bold px-5 py-3 rounded-xl transition">
+                            <i class="fas fa-comment-dots"></i> Diskusikan Hasil
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </section>
 
         <!-- 5. REMINDER & ACHIEVEMENT -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
-            <section>
-                <h2 class="text-primary font-bold text-3xl mb-8 flex items-center gap-3">
-                    <i class="fas fa-bell"></i> Reminder Belajar
-                </h2>
-                <div class="space-y-4">
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-primary flex items-center gap-4">
-                        <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">07.00</span>
-                        <div>
-                            <h4 class="font-bold">Belajar Matematika</h4>
-                            <p class="text-sm text-gray-500">Bab Integral - Latihan Soal</p>
+        <div id="schedule-ach" class="grid grid-cols-1 lg:grid-cols-2 gap-8 scroll-mt-24">
+            
+            <!-- Reminder Belajar -->
+            <section class="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-primary flex items-center justify-center shadow">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-primary">Agenda & Pengingat</h2>
+                                <p class="text-[10px] text-gray-400">Atur strategi belajar agar tidak terlewat</p>
+                            </div>
                         </div>
+                        <button onclick="toggleTaskForm()" class="bg-indigo-50 hover:bg-indigo-100 text-primary font-bold text-xs p-2 px-3 rounded-xl transition flex items-center gap-1">
+                            <i class="fas fa-plus"></i> Tambah
+                        </button>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-primary flex items-center gap-4">
-                        <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">10.00</span>
-                        <div>
-                            <h4 class="font-bold">Kerja Proyek PKN</h4>
-                            <p class="text-sm text-gray-500">Kumpulkan besok pagi</p>
-                        </div>
+
+                    <!-- Custom Task Creator Form container -->
+                    <div id="task-creator-form" class="hidden mb-6 p-4 bg-slate-50 border rounded-2xl relative">
+                        <h4 class="font-bold text-xs text-primary mb-3">Buat Pengingat Belajar Baru</h4>
+                        <form onsubmit="simpanTaskBaru(event)" class="space-y-3">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="col-span-1">
+                                    <label class="block text-[10px] text-gray-500 mb-0.5">Waktu</label>
+                                    <input id="task-time" type="time" value="16:00" required class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs" />
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-[10px] text-gray-500 mb-0.5">Judul Agenda</label>
+                                    <input id="task-title" type="text" placeholder="Contoh: Belajar Kimia" required class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-500 mb-0.5">Keterangan Tambahan</label>
+                                <input id="task-desc" type="text" placeholder="Contoh: Kupas Bab Ikatan Kimia" class="w-full p-2 bg-white border border-slate-200 rounded-lg text-xs" />
+                            </div>
+                            <div class="flex gap-2 pt-1.5 justify-end">
+                                <button type="button" onclick="toggleTaskForm()" class="text-[10px] text-slate-500 hover:underline px-3">Batal</button>
+                                <button type="submit" class="bg-primary text-white text-[10px] font-bold px-4 py-2 rounded-lg shadow-sm">Simpan</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-primary flex items-center gap-4">
-                        <span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">14.00</span>
-                        <div>
-                            <h4 class="font-bold">Konseling BK</h4>
-                            <p class="text-sm text-gray-500">Ruang BK 1 (Sesi Terjadwal)</p>
-                        </div>
+
+                    <!-- Dynamic List of Schedules -->
+                    <div id="schedule-list-container" class="space-y-3.5">
+                        <!-- Inserted dynamically -->
                     </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t text-[10px] text-slate-400 italic">
+                    *Tandai selesai untuk mengklaim +30 XP Semangat pelengkap usahamu!
                 </div>
             </section>
 
-            <section id="reward" class="scroll-mt-24">
-                <h2 class="text-primary font-bold text-3xl mb-8 flex items-center gap-3">
-                    <i class="fas fa-award"></i> Achievement
-                </h2>
-                <div class="bg-gradient-to-br from-yellow-400 to-yellow-600 p-8 rounded-3xl text-primary-dark text-center shadow-lg">
-                    <p class="font-bold uppercase tracking-wider text-primary opacity-80 mb-2">Poin Semangat</p>
-                    <div class="text-6xl font-bold mb-6 text-primary">1,250</div>
-                    <div class="flex flex-wrap justify-center gap-2">
-                        <span class="bg-white/40 px-3 py-1 rounded-full text-xs font-bold border border-white/20">🔥 7 Day Streak</span>
-                        <span class="bg-white/40 px-3 py-1 rounded-full text-xs font-bold border border-white/20">📚 Quiz Master</span>
-                        <span class="bg-white/40 px-3 py-1 rounded-full text-xs font-bold border border-white/20">🤝 Active</span>
+            <!-- Medali Achievement -->
+            <section class="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-105 text-orange-600 flex items-center justify-center shadow">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-primary">Tingkat Achievement</h2>
+                            <p class="text-[10px] text-gray-400">Unlock medali tangguhmu seiring meningkatnya XP Semangat</p>
+                        </div>
+                    </div>
+
+                    <!-- Grid of Badges -->
+                    <div id="badges-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Loaded dynamically from state -->
                     </div>
                 </div>
+
+                <div class="mt-6 p-3 bg-yellow-50 rounded-2xl border border-yellow-200 flex gap-2 items-start text-[10px] text-slate-500 leading-relaxed">
+                    <i class="fas fa-medal text-orange-500 shrink-0 text-sm"></i>
+                    <p>Unlock badge berlogo emas secara otomatis dengan meraih XP yang ditentukan lewat cara rutin memperbarui mood tracker, membaca kuisioner motivasi, serta bersahabat dengan AI!</p>
+                </div>
             </section>
+
         </div>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-primary text-white py-12 px-6 text-center">
-        <div class="flex items-center justify-center gap-2 text-2xl font-bold text-secondary mb-4">
+    <footer class="bg-primary text-white py-12 px-6 text-center mt-12 bg-gradient-to-b from-primary to-indigo-950 border-t-4 border-secondary">
+        <div class="flex items-center justify-center gap-2 text-2xl font-bold text-secondary mb-3">
             <i class="fas fa-graduation-cap"></i>
             <span>BK CENTER</span>
         </div>
-        <p class="mb-6 opacity-70">Membantu Siswa Meraih Prestasi dan Menjaga Kesehatan Mental.</p>
+        <p class="mb-6 opacity-75 max-w-md mx-auto text-sm leading-relaxed">Membantu Siswa Meraih Prestasi Belajar Tertinggi dan Memelihara Kebahagiaan Mental.</p>
+        
         <div class="flex justify-center gap-6 mb-8 text-xl text-secondary">
-            <a href="#" class="hover:opacity-70 transition-opacity"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="hover:opacity-70 transition-opacity"><i class="fab fa-facebook"></i></a>
-            <a href="#" class="hover:opacity-70 transition-opacity"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="hover:text-white transition-colors"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+            <a href="https://wa.me/6282195296602" target="_blank" class="hover:text-white transition-colors"><i class="fab fa-whatsapp"></i></a>
         </div>
-        <p class="text-sm opacity-40">© 2024 BK Center. Hubungi Guru BK-mu untuk bantuan lebih lanjut.</p>
+        
+        <p class="text-xs opacity-50">© 2024 BK Center. Seluruh hak cipta dilindungi. Hubungi Guru BK Anda untuk berkonsultasi lebih lanjut.</p>
     </footer>
 
+    <!-- INTERACTIVE JAVASCRIPT STATE ENGINE -->
     <script>
-        // 1. Logic Motivasi
-        const quotes = [
+        // 1. Data Store / State
+        const defaultQuotes = [
             { text: "Bermimpi saja tidak cukup. Bertindaklah untuk mewujudkannya!", author: "BK Sender" },
-            { text: "Pendidikan adalah senjata paling mematikan di dunia.", author: "Nelson Mandela" },
-            { text: "Hari ini harus lebih baik dari kemarin.", author: "Anonim" },
-            { text: "Kegagalan adalah kesuksesan yang tertunda.", author: "Pepatah" },
-            { text: "Jangan bandingkan prosesmu dengan hasil orang lain.", author: "Inspirasi BK" }
+            { text: "Pendidikan adalah senjata paling mematikan di dunia, karena dengan itu kamu bisa mengubah dunia.", author: "Nelson Mandela" },
+            { text: "Hari ini harus lebih baik dari kemarin. Setiap langkah kecil adalah progress.", author: "Anonim" },
+            { text: "Kegagalan adalah satu-satunya kesempatan untuk memulai kembali dengan lebih cerdas.", author: "Henry Ford" },
+            { text: "Jangan bandingkan masa prosesmu dengan akhir hasil orang lain. Setiap bunga mekar di waktunya sendiri.", author: "Inspirasi BK" },
+            { text: "Investasi dalam pengetahuan selalu membayar bunga terbaik.", author: "Benjamin Franklin" },
+            { text: "Masa depan adalah milik mereka yang percaya pada keindahan mimpi mereka.", author: "Eleanor Roosevelt" }
         ];
-        let currentQuote = 0;
-        function gantiQuote() {
-            currentQuote = (currentQuote + 1) % quotes.length;
-            document.getElementById('quote-text').innerText = `"${quotes[currentQuote].text}"`;
-            document.getElementById('quote-author').innerText = `- ${quotes[currentQuote].author}`;
-        }
 
-        // 2. Logic Mood Tracker
-        function pilihMood(key, message) {
-            const resultDiv = document.getElementById('mood-result');
-            resultDiv.innerText = message;
-            resultDiv.classList.add('animate-bounce');
-            setTimeout(() => resultDiv.classList.remove('animate-bounce'), 1000);
+        const moodConfig = {
+            senang: {
+                emoji: "😊",
+                label: "Senang",
+                bgColor: "rgba(22, 163, 74, 0.05)",
+                borderColor: "#16a34a",
+                advice: "Senang mendengarnya! Pertahankan energi positifmu hari ini! Coba bagikan senyummu kepada teman sebelahmu untuk menyebarkan kebaikan! 😊"
+            },
+            netral: {
+                emoji: "😐",
+                label: "Netral",
+                bgColor: "rgba(59, 130, 246, 0.05)",
+                borderColor: "#3b82f6",
+                advice: "Bagai aliran air tenang, kadang hari biasa itu perlu untuk menyelaraskan diri. Tetap santai dan lakukan kegiatan rutinmu secara konsisten. Tetap semangat, ya! 😐"
+            },
+            capek: {
+                emoji: "😔",
+                label: "Capek",
+                bgColor: "rgba(217, 119, 6, 0.05)",
+                borderColor: "#d97706",
+                advice: "Istirahat sejenak, yuk. Berbaringlah, minum air putih, dan dengarkan lagu favoritmu. Kamu sudah melakukan perjuangan terbaik hari ini, jangan memaksakan diri secara berlebihan. 😔"
+            },
+            stres: {
+                emoji: "😫",
+                label: "Stres",
+                bgColor: "rgba(225, 29, 72, 0.05)",
+                borderColor: "#e11d48",
+                advice: "Tarik napas dalam-dalam (4 detik hirup, 4 detik tahan, 4 detik hembuskan). Guru BK siap mendengarkan cerita belajarmu via Chat di bawah atau WhatsApp. Tenang, kamu tidak sendirian menghadapinya! 😫"
+            }
+        };
+
+        const quizQuestions = [
+            {
+                id: 1,
+                question: "Bagaimana cara kamu menghadapi ujian atau tugas sekolah?",
+                options: [
+                    { text: "Belajar mencicil setiap hari tanpa menunggu ujian mepet", score: 25, feedback: "Karakter disiplin hebat!" },
+                    { text: "Hanya belajar saat ada PR atau tugas mendesak", score: 18, feedback: "Bagus, tapi bisa disempurnakan lagi." },
+                    { text: "Sistem Kebut Semalam (SKS) menjelang hari ujian", score: 10, feedback: "Menimbun stres berlebih lho!" },
+                    { text: "Sering menunda-nunda dan bahkan lupa belajar", score: 5, feedback: "Yuk diskusikan penataannya bersamaku." }
+                ]
+            },
+            {
+                id: 2,
+                question: "Ketika mendapatkan nilai ujian yang kurang dari targetmu, apa tindakanmu?",
+                options: [
+                    { text: "Mengevaluasi letak kesalahan dan membuat target belajar baru", score: 25, feedback: "Sifat tangguh yang luar biasa!" },
+                    { text: "Merasa kecewa sejenak, lalu menambal catatan materi yang tertinggal", score: 18, feedback: "Langkah proaktif yang mantap." },
+                    { text: "Mengabaikannya dan menganggap nilai sekadar angka sementara", score: 10, feedback: "Nilai memang bukan segalanya, tapi pemahaman konsep itu krusial." },
+                    { text: "Kehilangan semangat juang dan merasa putus asa untuk bersaing", score: 5, feedback: "Raihlah tangan guru BK, kita bangkit bersama." }
+                ]
+            },
+            {
+                id: 3,
+                question: "Bagaimana kamu membagi waktu antara belajar mandiri, hobi, dan istirahat?",
+                options: [
+                    { text: "Membuat jadwal teratur harian dan disiplin mematuhinya", score: 25, feedback: "Manajer waktu yang andal!" },
+                    { text: "Membuat rencana tertulis, tapi goyah bila teman mengajak main game", score: 17, feedback: "Godaannya wajar, yuk asah fokus tipis-tipis." },
+                    { text: "Mengalir begitu saja tanpa rencana, yang penting tugas rampung", score: 12, feedback: "Fleksibel, tapi awas tugas menumpuk mendadak." },
+                    { text: "Tidak punya jadwal, lebih banyak bermain sosmed hingga larut malam", score: 5, feedback: "Butuh detoks digital dan struktur belajar." }
+                ]
+            },
+            {
+                id: 4,
+                question: "Apa dorongan atau tujuan utama kamu bersekolah saat ini?",
+                options: [
+                    { text: "Ingin memperluas wawasan dan berkontribusi di masa depan", score: 25, feedback: "Cita-cita mulia!" },
+                    { text: "Ingin membahagiakan orang tua dan meraih pujian guru", score: 19, feedback: "Tujuan baik, pastikan dirimu juga bahagia ya." },
+                    { text: "Hanya menggugurkan kewajiban masuk kelas agar tidak dihukum", score: 10, feedback: "Mencari kesenangan tersembunyi jauh lebih asik." },
+                    { text: "Sama sekali tidak tahu, merasa terpaksa menjalani kehidupan sekolah", score: 5, feedback: "Mari ngobrol santai denganku, kita cari minat terpendammu." }
+                ]
+            }
+        ];
+
+        let state = {
+            points: 1250,
+            quoteIdx: 0,
+            selectedMood: null,
+            lastMoodDate: null,
+            chatHistory: [
+                { sender: "bot", text: "Halo! Saya AI Guru BK. Ada bimbingan, keluh kesah belajar, atau cerita menarik yang ingin kamu diskusikan hari ini?", time: "08:15" }
+            ],
+            schedules: [
+                { id: "sch-1", time: "07:00", title: "Review & Belajar Mandiri", desc: "Membaca sekilas bab integral matematika sebelum kelas mulai", completed: false },
+                { id: "sch-2", time: "10:00", title: "Kerja Proyek Pancasila", desc: "Diskusi kelompok dan menyusun bahan presentasi PPKn", completed: false },
+                { id: "sch-3", time: "14:00", title: "Konseling Hangat BK", desc: "Sesi sharing bebas (offline di ruang konseling atau online)", completed: false }
+            ],
+            quizState: {
+                active: false,
+                currentIdx: 0,
+                score: 0,
+                finished: false,
+                answers: [] // Menyimpan index opsi terpilih
+            },
+            badges: [
+                { id: "b-streak", name: "Semangat Membara", icon: "🔥", desc: "Melakukan Mood Tracking harian", req: 1300, unlocked: false },
+                { id: "b-quiz", name: "Master Evaluasi", icon: "📚", desc: "Menyelesaikan tes motivasi belajar", req: 1400, unlocked: false },
+                { id: "b-chat", name: "Sahabat Konselor", icon: "🤝", desc: "Berdiskusi hangat dengan AI BK", req: 1350, unlocked: false },
+                { id: "b-schedule", name: "Perencana Andal", icon: "📅", desc: "Menyelesaikan agenda belajar harian", req: 1500, unlocked: false }
+            ],
+            videoClaimed: false
+        };
+
+        // Load Persisted Data from localStorage if present
+        function loadStorage() {
+            const savedPoints = localStorage.getItem("bk_codepen_points");
+            if (savedPoints) state.points = parseInt(savedPoints, 10);
+
+            const savedClaim = localStorage.getItem("bk_codepen_video_claimed");
+            if (savedClaim) state.videoClaimed = (savedClaim === "true");
+
+            const savedSchedules = localStorage.getItem("bk_codepen_schedules");
+            if (savedSchedules) {
+                try { state.schedules = JSON.parse(savedSchedules); } catch(e){}
+            }
+
+            const savedChat = localStorage.getItem("bk_codepen_chat_history");
+            if (savedChat) {
+                try { state.chatHistory = JSON.parse(savedChat); } catch(e){}
+            }
+
+            const savedMood = localStorage.getItem("bk_codepen_mood");
+            if (savedMood) state.selectedMood = savedMood;
             
-            // Highlight button
-            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.replace('border-primary', 'border-gray-100'));
-            event.currentTarget.classList.replace('border-gray-100', 'border-primary');
+            const savedLastMoodDate = localStorage.getItem("bk_codepen_last_mood_date");
+            if (savedLastMoodDate) state.lastMoodDate = savedLastMoodDate;
         }
 
-        // 3. Logic Chat
-        const chatInput = document.getElementById('chat-input');
-        const chatArea = document.getElementById('chat-area');
+        function saveStorage() {
+            localStorage.setItem("bk_codepen_points", state.points);
+            localStorage.setItem("bk_codepen_video_claimed", state.videoClaimed);
+            localStorage.setItem("bk_codepen_schedules", JSON.stringify(state.schedules));
+            localStorage.setItem("bk_codepen_chat_history", JSON.stringify(state.chatHistory));
+            if (state.selectedMood) localStorage.setItem("bk_codepen_mood", state.selectedMood);
+            if (state.lastMoodDate) localStorage.setItem("bk_codepen_last_mood_date", state.lastMoodDate);
+        }
+
+        // 2. Alert Notification Helper
+        function showToast(text, type = "success") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `p-4 rounded-xl shadow-2xl flex items-start gap-3 border bg-slate-900 border-yellow-400/40 text-yellow-400 max-w-sm w-full transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto`;
+            
+            if (type === "info") {
+                toast.className = `p-4 rounded-xl shadow-2xl flex items-start gap-3 border bg-slate-900 border-blue-400/40 text-blue-400 max-w-sm w-full transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto`;
+            }
+
+            toast.innerHTML = `
+                <div class="mt-0.5"><i class="fas ${type === "success" ? "fa-star animate-pulse" : "fa-info-circle"}"></i></div>
+                <div>
+                    <h5 class="font-bold text-xs text-white">BK Center</h5>
+                    <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">${text}</p>
+                </div>
+            `;
+            container.appendChild(toast);
+            
+            // Slide in animation
+            setTimeout(() => {
+                toast.classList.remove("translate-x-12", "opacity-0");
+            }, 10);
+
+            // Disappear self
+            setTimeout(() => {
+                toast.classList.add("translate-x-12", "opacity-0");
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // 3. XP Level Progress Updates
+        function renderProgress() {
+            document.getElementById("nav-points").innerText = state.points.toLocaleString() + " XP";
+            
+            const pointsPerLevel = 500;
+            const currentLevel = Math.floor(state.points / pointsPerLevel) + 1;
+            const currentLevelProgress = state.points % pointsPerLevel;
+            const progressPct = (currentLevelProgress / pointsPerLevel) * 100;
+
+            document.getElementById("level-title").innerText = `Level Bimbingan ${currentLevel}`;
+            document.getElementById("points-ratio").innerText = `${state.points} XP / ${(currentLevel * pointsPerLevel)} XP`;
+            document.getElementById("level-bar-fill").style.width = `${progressPct}%`;
+
+            renderBadges();
+        }
+
+        function tambahPoin(val, alertMsg = "") {
+            state.points += val;
+            saveStorage();
+            renderProgress();
+            if (alertMsg) {
+                showToast(`${alertMsg} (+${val} XP)`, "success");
+            }
+        }
+
+        // Check & Unlock Badges
+        function renderBadges() {
+            const badgesDiv = document.getElementById("badges-container");
+            badgesDiv.innerHTML = "";
+
+            state.badges.forEach(b => {
+                const isUnlocked = state.points >= b.req;
+                if (isUnlocked && !b.unlocked) {
+                    b.unlocked = true;
+                    showToast(`Hebat! Kamu meraih medali prestasi: "${b.name}"!`, "success");
+                    saveStorage();
+                }
+
+                // Element Creation
+                const card = document.createElement("div");
+                card.className = `p-4 rounded-2xl border flex items-center gap-3 transition-all ${
+                    isUnlocked 
+                        ? "bg-amber-50/50 border-amber-300/60 shadow-sm" 
+                        : "bg-slate-50/50 border-slate-100 opacity-60"
+                }`;
+
+                card.innerHTML = `
+                    <div class="text-3xl p-2 rounded-xl ${isUnlocked ? 'bg-amber-100' : 'bg-slate-100'} shrink-0">${b.icon}</div>
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-800 ${isUnlocked ? 'text-amber-800' : ''}">${b.name}</h4>
+                        <p class="text-[10px] text-slate-500 leading-normal mt-0.5">${b.desc}</p>
+                        <div class="mt-1 flex items-center gap-1.5 text-[9px] font-mono font-bold ${isUnlocked ? 'text-amber-600' : 'text-slate-400'}">
+                            ${isUnlocked ? '<i class="fas fa-check-circle"></i> Terbuka' : `<i class="fas fa-lock"></i> Syarat: ${b.req} XP`}
+                        </div>
+                    </div>
+                `;
+                badgesDiv.appendChild(card);
+            });
+        }
+
+        // 4. Quote Changer Section
+        function gantiQuote() {
+            const wrapper = document.getElementById("quote-wrapper");
+            wrapper.style.opacity = "0";
+
+            setTimeout(() => {
+                state.quoteIdx = (state.quoteIdx + 1) % defaultQuotes.length;
+                document.getElementById("quote-text").innerText = `"${defaultQuotes[state.quoteIdx].text}"`;
+                document.getElementById("quote-author").innerText = `— ${defaultQuotes[state.quoteIdx].author}`;
+                wrapper.style.opacity = "1";
+            }, 200);
+        }
+
+        function klaimVideoPoint() {
+            if (state.videoClaimed) {
+                showToast("Kamu sudah mengklaim poin dari video ini sebelumnya, Kak!", "info");
+                return;
+            }
+            state.videoClaimed = true;
+            tambahPoin(35, "Menyelesaikan literasi video motivasi!");
+            const btn = document.getElementById("btn-klaim-video");
+            btn.className = "flex-1 bg-slate-100 text-slate-400 font-bold py-3 px-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5 border";
+            btn.innerHTML = `<i class="fas fa-check-double"></i> Poin Diklaim`;
+            saveStorage();
+        }
+
+        // 5. Mood Tracker Section
+        function pilihMood(moodKey) {
+            state.selectedMood = moodKey;
+            
+            // Highlight Button
+            document.querySelectorAll(".mood-btn").forEach(btn => {
+                btn.className = "mood-btn flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-slate-100 bg-white hover:border-slate-300 hover:bg-slate-50 transition-all duration-300 shadow-sm";
+            });
+
+            const activeBtn = document.getElementById(`mood-${moodKey}`);
+            const config = moodConfig[moodKey];
+            activeBtn.className = `mood-btn flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all duration-300 shadow-xl scale-105 bg-indigo-50/10`;
+            activeBtn.style.borderColor = config.borderColor;
+
+            // Advice Banner
+            const adviceBox = document.getElementById("mood-advice-box");
+            adviceBox.classList.remove("hidden");
+            adviceBox.style.backgroundColor = config.bgColor;
+            adviceBox.style.borderLeftColor = config.borderColor;
+            
+            document.getElementById("advice-title").innerText = `Anjuran Respons Guru BK: ${config.label}`;
+            document.getElementById("advice-desc").innerText = config.advice;
+
+            // Award points for daily check-in
+            const todayStr = new Date().toDateString();
+            if (state.lastMoodDate !== todayStr) {
+                state.lastMoodDate = todayStr;
+                tambahPoin(50, "Pencatatan kesiapan mental harian terarsip!");
+            } else {
+                showToast("Terima kasih sudah memperbarui mood belajarmu hari ini!", "info");
+            }
+            saveStorage();
+        }
+
+        // 6. Interactive Chat AI Section
+        const chatInput = document.getElementById("chat-input");
+        chatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") kirimChat();
+        });
+
+        function renderChat() {
+            const area = document.getElementById("chat-area");
+            area.innerHTML = "";
+            state.chatHistory.forEach(item => {
+                const isBot = item.sender === "bot";
+                const wrapper = document.createElement("div");
+                wrapper.className = `flex flex-col max-w-[85%] ${isBot ? "mr-auto" : "ml-auto"}`;
+                
+                wrapper.innerHTML = `
+                    <div class="p-3.5 rounded-2xl text-xs md:text-sm shadow-sm leading-relaxed ${isBot ? 'bg-white text-slate-800 rounded-tl-none border border-slate-100' : 'bg-primary text-white rounded-tr-none'}">
+                        ${item.text}
+                    </div>
+                    <span class="text-[9px] text-slate-405 mt-1 block px-1 ${isBot ? 'text-left' : 'text-right'}">${isBot ? 'Asisten BK' : 'Saya'} — ${item.time}</span>
+                `;
+                area.appendChild(wrapper);
+            });
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function clearChatHistory() {
+            if (confirm("Apakah kamu yakin ingin menghapus seluruh riwayat obrolan bimbinganmu?")) {
+                state.chatHistory = [
+                    { sender: "bot", text: "Halo! Saya AI Guru BK Center. Selamat datang di ruang diskusi yang aman dan rahasia ini. Ada masalah belajar, manajemen waktu, kecemasan ujian, atau hal seru lainnya yang ingin kamu bagikan hari ini?", time: getCurrentTime() }
+                ];
+                saveStorage();
+                renderChat();
+                showToast("Informasi obrolan dibersihkan secara aman.", "info");
+            }
+        }
+
+        function getCurrentTime() {
+            const d = new Date();
+            return d.toLocaleTimeString("id", { hour: "2-digit", minute: "2-digit" });
+        }
 
         function kirimChat() {
-            const text = chatInput.value.trim();
-            if(!text) return;
+            const txt = chatInput.value.trim();
+            if (!txt) return;
 
             // User Message
-            tambahPesan(text, 'user');
-            chatInput.value = '';
+            const userMsg = { sender: "user", text: txt, time: getCurrentTime() };
+            state.chatHistory.push(userMsg);
+            chatInput.value = "";
+            renderChat();
 
-            // Bot Response (Mock)
+            // Simulate typing dots
+            const area = document.getElementById("chat-area");
+            const dots = document.createElement("div");
+            dots.id = "chat-typing-dot";
+            dots.className = "flex items-center gap-2 max-w-[80%] mr-auto p-3.5 bg-slate-100 text-slate-450 border rounded-2xl rounded-tl-none text-xs";
+            dots.innerHTML = `
+                <div class="flex gap-1">
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+                    <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                </div>
+                <span class="text-[10px] italic">Guru BK sedang mengetik...</span>
+            `;
+            area.appendChild(dots);
+            area.scrollTop = area.scrollHeight;
+
+            // Simple client-side intelligent response router (In lieue of raw key absent warnings)
             setTimeout(() => {
-                const responses = [
-                    "Terima kasih sudah bercerita. Kamu luar biasa!",
-                    "Bapak/Ibu mengerti perasaanmu. Mari kita selesaikan perlahan.",
-                    "Jangan lupa luangkan waktu untuk istirahat sejenak, ya.",
-                    "Semangat belajarmu pastinya akan membuahkan hasil!",
-                    "Ada lagi yang mengganjal di pikiranmu?"
-                ];
-                const reply = responses[Math.floor(Math.random() * responses.length)];
-                tambahPesan(reply, 'bot');
+                document.getElementById("chat-typing-dot")?.remove();
+                
+                const lower = txt.toLowerCase();
+                let ans = "Terima kasih sudah terhubung, Kak. Bapak/Ibu sangat memahami beratnya beban belajarmu saat ini. Ingat, tak ada proses belok yang sia-sia. Luangkan jeda 10 menit untuk relaksasi ya.";
+                
+                if (lower.includes("malas") || lower.includes("menunda") || lower.includes("maless")) {
+                    ans = "Rasa malas bertamu ketika tujuan terasa terlalu raksasa. Cobalah teknik mikro: pecah tugasmu menjadi target 15 menitan saja. Singkirkan gawai (gadget) lebih awal hari ini. Mau tim BK bantu temani menyusun agenda harianmu di bagian bawah?";
+                } else if (lower.includes("stres") || lower.includes("depresi") || lower.includes("cemas") || lower.includes("gugup")) {
+                    ans = "Menghadapi kecemasan itu sangat menguras tenaga, Kak. Tarik napas perlahan... ketahuilah bahwa bapak/ibu ada di sini. Tidak apa-apa jika hasil belajarmu belum sempurna, yang utama adalah usahamu menjaga kesehatan mental hari ini.";
+                } else if (lower.includes("teman") || lower.includes("bully") || lower.includes("pacar") || lower.includes("musuh")) {
+                    ans = "Masalah sosial memang mengganggu ketenangan belajarmu secara drastis, ya. Bapak/Ibu sarankan, jika ada perundungan (bullying) yang terjadi, kumpulkan keberanian untuk menggunakan formulir WhatsApp di samping kita untuk menjadwalkan konseling luring langsung.";
+                } else if (lower.includes("belajar") || lower.includes("cara") || lower.includes("metode")) {
+                    ans = "Metode belajar ideal adalah yang melibatkan aktifitas pancingan otak. Bapak/Ibu merekomendasikan teknik Pomodoro: Belajar 25 menit fokus, lalu wajib istirahat 5 menit untuk sekadar minum air putih.";
+                }
+
+                const botMsg = { sender: "bot", text: ans, time: getCurrentTime() };
+                state.chatHistory.push(botMsg);
+                
+                // Award points on first usage milestone
+                if (state.chatHistory.length === 3) {
+                    tambahPoin(100, "Inisiasi curhat yang berani!");
+                }
+                
+                saveStorage();
+                renderChat();
+            }, 1200);
+        }
+
+        // 7. WhatsApp redirection Form
+        function kirimWA(e) {
+            e.preventDefault();
+            const nama = document.getElementById("wa-name").value.trim() || "Siswa Rahasia";
+            const topic = document.getElementById("wa-topic").value;
+            const msg = document.getElementById("wa-message").value.trim();
+
+            const fullText = `Halo Guru BK Center,\n\nSaya ${nama}. Ingin melakukan jadwal bimbingan sekolah terkait topik *${topic}*:\n\n"${msg}"`;
+            const redirectLink = `https://wa.me/6282195296602?text=${encodeURIComponent(fullText)}`;
+            
+            showToast("Formulir terekam! Membuka WhatsApp Konselor...", "info");
+            setTimeout(() => {
+                window.open(redirectLink, "_blank");
             }, 800);
         }
 
-        function tambahPesan(text, sender) {
-            const div = document.createElement('div');
-            div.className = `max-w-[80%] p-3 rounded-2xl ${sender === 'user' ? 'bg-primary text-white ml-auto rounded-tr-none' : 'bg-white text-gray-800 mr-auto rounded-tl-none border border-gray-100 shadow-sm'}`;
-            div.innerText = text;
-            chatArea.appendChild(div);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
+        // 8. Tes Motivasi Belajar (Quiz)
+        function mulaiKuis() {
+            state.quizState.active = true;
+            state.quizState.currentIdx = 0;
+            state.quizState.score = 0;
+            state.quizState.answers = [];
+            state.quizState.finished = false;
 
-        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') kirimChat(); });
-
-        // 4. Logic WhatsApp
-        function kirimWA(e) {
-            e.preventDefault();
-            const nama = document.getElementById('wa-nama').value;
-            const topik = document.getElementById('wa-topik').value;
-            const pesan = document.getElementById('wa-pesan').value;
+            document.getElementById("quiz-start-screen").classList.add("hidden");
+            document.getElementById("quiz-result-screen").classList.add("hidden");
+            document.getElementById("quiz-active-container").classList.remove("hidden");
             
-            const text = `Halo Guru BK, saya ${nama || 'Siswa'}. Ingin curhat tentang *${topik}*.\n\n"${pesan}"`;
-            const encoded = encodeURIComponent(text);
-            window.open(`https://wa.me/6282195296602?text=${encoded}`, '_blank');
+            tampilkanPertanyaanKuis();
         }
 
-        // 5. Logic Quiz
-        function hasilQuiz(score, title, desc) {
-            document.getElementById('quiz-options').classList.add('hidden');
-            const res = document.getElementById('quiz-result');
-            res.classList.remove('hidden');
-            document.getElementById('result-title').innerText = title;
-            document.getElementById('result-score').innerText = `Skor Motivasi: ${score}%`;
-            document.getElementById('result-desc').innerText = desc;
+        function tampilkanPertanyaanKuis() {
+            const idx = state.quizState.currentIdx;
+            const question = quizQuestions[idx];
+
+            document.getElementById("quiz-progress-text").innerText = `Pertanyaan ${idx + 1} dari ${quizQuestions.length}`;
+            const pct = Math.floor(((idx + 1) / quizQuestions.length) * 100);
+            document.getElementById("quiz-progress-percentage").innerText = `${pct}%`;
+            document.getElementById("quiz-progress-bar").style.width = `${pct}%`;
+            document.getElementById("quiz-question").innerText = `${question.id}. ${question.question}`;
+
+            const optionsDiv = document.getElementById("quiz-options-container");
+            optionsDiv.innerHTML = "";
+
+            question.options.forEach((opt, oIdx) => {
+                const optBtn = document.createElement("button");
+                const hasSelected = state.quizState.answers[idx] === oIdx;
+
+                optBtn.onclick = () => pilihOpsiKuis(oIdx);
+                optBtn.className = `w-full text-left p-4 rounded-xl border-2 text-xs md:text-sm font-medium transition-all flex items-start gap-3.5 ${
+                    hasSelected 
+                        ? 'border-primary bg-indigo-55 bg-indigo-50/50 text-indigo-950 shadow-sm' 
+                        : 'border-slate-100 bg-slate-50 hover:bg-slate-100 text-slate-700'
+                }`;
+
+                optBtn.innerHTML = `
+                    <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold ${
+                        hasSelected ? 'border-primary bg-primary text-white' : 'border-slate-300 text-slate-400 bg-white'
+                    }">${oIdx + 1}</span>
+                    <span>${opt.text}</span>
+                `;
+                optionsDiv.appendChild(optBtn);
+            });
         }
 
-        function resetQuiz() {
-            document.getElementById('quiz-options').classList.remove('hidden');
-            document.getElementById('quiz-result').classList.add('hidden');
+        function pilihOpsiKuis(optionIdx) {
+            const idx = state.quizState.currentIdx;
+            state.quizState.answers[idx] = optionIdx;
+            tampilkanPertanyaanKuis();
         }
+
+        function lanjutKuis() {
+            const idx = state.quizState.currentIdx;
+            if (state.quizState.answers[idx] === undefined) {
+                showToast("Silakan pilih salah satu opsi yang tersedia terlebih dulu!", "info");
+                return;
+            }
+
+            if (idx < quizQuestions.length - 1) {
+                state.quizState.currentIdx++;
+                tampilkanPertanyaanKuis();
+            } else {
+                analisisHasilKuis();
+            }
+        }
+
+        function analisisHasilKuis() {
+            let totalScore = 0;
+            state.quizState.answers.forEach((selectedOptId, qId) => {
+                const scoreValue = quizQuestions[qId].options[selectedOptId].score;
+                totalScore += scoreValue;
+            });
+
+            state.quizState.score = totalScore;
+            state.quizState.finished = true;
+
+            document.getElementById("quiz-active-container").classList.add("hidden");
+            document.getElementById("quiz-result-screen").classList.remove("hidden");
+            
+            // Render Result Details
+            document.getElementById("quiz-result-score").innerText = `${totalScore}%`;
+            
+            let titleText = "Super Semangat! 🏆";
+            let descText = "";
+
+            if (totalScore >= 80) {
+                titleText = "Super Semangat! 🏆";
+                descText = "Sikap belajarmu sudah luar biasa mandiri, bertanggung jawab, dan teratur. Kamu cerdas memanfaatkan waktu luang berharha. Cobalah sesekali menjadi mentor teman sebaya yang kesulitan belajar demi melatih membaurnya pemahamanmu.";
+            } else if (totalScore >= 60) {
+                titleText = "Semangat Cukup Baik! 👍";
+                descText = "Sikap belajarmu tergolong cukup memadai, namun motivasi belajarmu sering naik turun tak stabil tergantung ada tidaknya tugas PR. Gunakan fitur agenda di bawah untuk membantumu melatih habituasi belajar berkala.";
+            } else if (totalScore >= 40) {
+                titleText = "Butuh Dorongan! ⚡";
+                descText = "Kamu sering menunda tugas sekolah yang akhirnya menumpuk memicu kepanikan stres. Cobalah menerapkan teknik micro-habits: sisihkan 15 menit belajar di waktu yang sama setiap malam secara konsisten.";
+            } else {
+                titleText = "Butuh Bimbingan! ❤️";
+                descText = "Kamu mengalami kejenuhan akut dalam belajar dan kehilangan arah tujuan sekolah. Jangan berkecil hati! Hubungi tim Guru BK melalui fitur asisten chat atau formulir WA untuk merangkai kembali mimpimu.";
+            }
+
+            document.getElementById("quiz-result-title").innerText = titleText;
+            document.getElementById("quiz-result-analysis-text").innerText = descText;
+
+            // Reward
+            tambahPoin(150, "Penyelesaian kuisioner motivasi!");
+        }
+
+        function resetKuis() {
+            state.quizState.active = false;
+            state.quizState.finished = false;
+            state.quizState.answers = [];
+
+            document.getElementById("quiz-result-screen").classList.add("hidden");
+            document.getElementById("quiz-start-screen").classList.remove("hidden");
+        }
+
+        // 9. Reminder / Planner Schedule Section
+        function toggleTaskForm() {
+            const form = document.getElementById("task-creator-form");
+            form.classList.toggle("hidden");
+        }
+
+        function renderSchedules() {
+            const list = document.getElementById("schedule-list-container");
+            list.innerHTML = "";
+
+            if (state.schedules.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs italic">Belum ada pengingat belajar dibuat.</div>`;
+                return;
+            }
+
+            state.schedules.forEach(item => {
+                const row = document.createElement("div");
+                row.className = `p-4 rounded-xl shadow-sm border-l-4 flex items-center justify-between gap-3 transition ${
+                    item.completed 
+                        ? 'border-emerald-500 bg-emerald-50/40 text-slate-500 line-through' 
+                        : 'border-primary bg-slate-50 text-slate-800'
+                }`;
+
+                row.innerHTML = `
+                    <div class="flex items-center gap-4 flex-1">
+                        <button onclick="toggleScheduleCompletion('${item.id}')" class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 cursor-pointer transition ${
+                            item.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-350 bg-white hover:border-indigo-650'
+                        }">
+                            ${item.completed ? '<i class="fas fa-check text-[10px]"></i>' : ''}
+                        </button>
+                        
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-indigo-900 text-white px-2 py-0.5 rounded text-[10px] font-mono leading-none font-bold">${item.time}</span>
+                                <h4 class="font-bold text-xs md:text-sm select-none">${item.title}</h4>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-1 select-none leading-normal">${item.desc || 'No description'}</p>
+                        </div>
+                    </div>
+
+                    <button onclick="hapusSchedule('${item.id}')" class="text-slate-400 hover:text-red-500 p-2 shrink-0 transition" title="Hapus">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function toggleScheduleCompletion(id) {
+            const agenda = state.schedules.find(s => s.id === id);
+            if (!agenda) return;
+
+            agenda.completed = !agenda.completed;
+            if (agenda.completed) {
+                tambahPoin(30, "Agenda terselesaikan!");
+            } else {
+                state.points = Math.max(0, state.points - 30);
+                saveStorage();
+                renderProgress();
+            }
+            saveStorage();
+            renderSchedules();
+        }
+
+        function simpanTaskBaru(e) {
+            e.preventDefault();
+            const timeVal = document.getElementById("task-time").value;
+            const titleVal = document.getElementById("task-title").value.trim();
+            const descVal = document.getElementById("task-desc").value.trim();
+
+            if (!titleVal) return;
+
+            const newItem = {
+                id: "sch-" + Date.now(),
+                time: timeVal,
+                title: titleVal,
+                desc: descVal,
+                completed: false
+            };
+
+            state.schedules.push(newItem);
+            saveStorage();
+            renderSchedules();
+
+            // Reset Form fields
+            document.getElementById("task-title").value = "";
+            document.getElementById("task-desc").value = "";
+            toggleTaskForm();
+            showToast("Agenda belajar baru berhasil dijadwalkan!", "success");
+        }
+
+        function hapusSchedule(id) {
+            state.schedules = state.schedules.filter(s => s.id !== id);
+            saveStorage();
+            renderSchedules();
+            showToast("Agenda terhapus.", "info");
+        }
+
+        // Initialize App on load
+        window.addEventListener("DOMContentLoaded", () => {
+            loadStorage();
+            renderProgress();
+            renderSchedules();
+            
+            // Load persist history
+            if (state.chatHistory.length > 0) renderChat();
+
+            // Set visual claimed video button state
+            if (state.videoClaimed) {
+                const btn = document.getElementById("btn-klaim-video");
+                btn.className = "flex-1 bg-slate-100 text-slate-400 font-bold py-3 px-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5 border";
+                btn.innerHTML = `<i class="fas fa-check-double"></i> Poin Diklaim`;
+            }
+
+            // Sync visual mood card if loaded from storage
+            if (state.selectedMood) {
+                const savedMoodKey = state.selectedMood;
+                state.selectedMood = null; // reset to dodge check in duplicate xp addition
+                pilihMood(savedMoodKey);
+            }
+        });
     </script>
 </body>
 </html>
